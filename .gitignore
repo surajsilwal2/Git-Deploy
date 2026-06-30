@@ -1,0 +1,18 @@
+# os files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Node (used in CodeBuild demo)
+node_modules/
+npm-debug.log.*
+
+# Build output
+dist/
+build/

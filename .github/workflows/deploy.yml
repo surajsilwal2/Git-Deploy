@@ -17,6 +17,12 @@ jobs:
               with:
                 node-version: '18'
 
+            - name: Show repository contents
+              run: |
+                pwd
+                ls -la
+                find . -maxdepth 2
+
             - name: Install dependencies
               run: npm install
 

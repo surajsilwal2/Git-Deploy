@@ -5,6 +5,12 @@ on:
         branches:
             - main 
     workflow_dispatch: # Manual trigger button in GitHub Actions UI
+
+permissions:
+  id-token: write
+  contents: read
+
+  
 jobs:
     build:
         runs-on: ubuntu-latest

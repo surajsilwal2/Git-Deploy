@@ -1,18 +1,59 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline with CodeDeploy
 
 on: 
     push:
         branches:
             - main 
-    pull_request:
-        branches:
-            - main
-    schedule:
-        - cron: '0 0 * * *' # Runs every day at midnight
     workflow_dispatch: # Manual trigger button in GitHub Actions UI
 jobs:
-    demo:
+    build:
         runs-on: ubuntu-latest
-        steps:
-            - name: Demo step
-              run: echo "Workflow triggered successfully!"
+        steps: 
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                    node-version: '18'
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run unit tests
+              run: npm run test:unit
+
+            - name: Run integration tests
+              run: npm run test:integration
+
+
+            - name: Build application
+              run: echo "Building application..." # Replace with actual build command
+
+    deploy: 
+        needs: build
+        runs-on: ubuntu-latest
+
+        steps: 
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                    role-to-assume: arn:aws:iam::289050430809:role/GithubIdentityRole
+                    aws-region: us-east-1
+            - name: Create deployment package
+              
+              run: zip -r deployment.zip . -x "*.git*" "node_modules/*"
+
+            - name: Upload to S3
+              run: aws s3 cp deployment.zip s3://gitdeploymentartifact/deployment.zip
+
+            - name: Trigger CodeDeploy
+              run: |
+                  aws deploy create-deployment \
+                  --application-name GitDeploy \
+                  --deployment-group-name GitDeployGroup \
+                  --s3-location bucket=gitdeploymentartifact,key=deployment.zip,bundleType=zip
+        
+
